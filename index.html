@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduLibrary - Sistem Peminjaman Buku Kampus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>EduLibrary</h2>
+        <ul>
+            <li><a href="#" onclick="showSection('dashboard')">Dashboard</a></li>
+            <li><a href="#" onclick="showSection('katalog')">Katalog Buku</a></li>
+            <li><a href="#" onclick="showSection('antrean')">Antrean Peminjaman</a></li>
+            <li><a href="#" onclick="showSection('pengembalian')">Pengembalian Buku</a></li>
+            <li style="margin-top: 50px;"><a href="#" onclick="resetData()" style="color: #ff4c4c;">Reset Data Demo</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <header>
+            <h1>Sistem Informasi Peminjaman Buku Kampus</h1>
+        </header>
+        
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="active">
+            <h2>Dashboard</h2>
+            <div class="cards">
+                <div class="card"><h3>Total Buku</h3><p id="stat-total-buku">0</p></div>
+                <div class="card"><h3>Total Stok</h3><p id="stat-total-stok">0</p></div>
+                <div class="card"><h3>Antrean</h3><p id="stat-antrean">0</p></div>
+                <div class="card"><h3>Peminjaman Aktif</h3><p id="stat-aktif">0</p></div>
+            </div>
+        </section>
+
+        <!-- KATALOG BUKU -->
+        <section id="katalog">
+            <h2>Katalog Buku</h2>
+            <div class="form-container">
+                <h3>Tambah / Edit Buku</h3>
+                <form id="book-form">
+                    <input type="hidden" id="book-id">
+                    <input type="text" id="book-code" placeholder="Kode Buku (misal: B001)" required>
+                    <input type="text" id="book-title" placeholder="Judul Buku" required>
+                    <input type="text" id="book-author" placeholder="Penulis" required>
+                    <input type="text" id="book-category" placeholder="Kategori" required>
+                    <input type="number" id="book-year" placeholder="Tahun Terbit" required>
+                    <input type="number" id="book-stock" placeholder="Stok" required min="0">
+                    <button type="submit" id="btn-save-book">Simpan Buku</button>
+                    <button type="button" onclick="cancelEdit()" id="btn-cancel-edit" style="display:none; background:#888;">Batal</button>
+                </form>
+            </div>
+            
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="search-query" placeholder="Pencarian...">
+                    <select id="search-type">
+                        <option value="kode">Berdasarkan Kode</option>
+                        <option value="judul">Berdasarkan Judul</option>
+                        <option value="penulis">Berdasarkan Penulis</option>
+                    </select>
+                    <button onclick="handleSearch()">Cari</button>
+                    <button onclick="resetSearch()">Reset</button>
+                </div>
+                <div class="sort-box">
+                    <select id="sort-type">
+                        <option value="judul">Judul (A-Z)</option>
+                        <option value="stok">Stok (Terkecil-Terbesar)</option>
+                    </select>
+                    <button onclick="handleSort()">Urutkan</button>
+                </div>
+            </div>
+
+            <table id="book-table">
+                <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Judul</th>
+                        <th>Penulis</th>
+                        <th>Kategori</th>
+                        <th>Tahun</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="book-table-body"></tbody>
+            </table>
+        </section>
+
+        <!-- ANTREAN PEMINJAMAN -->
+        <section id="antrean">
+            <h2>Antrean Peminjaman</h2>
+            <div class="form-container">
+                <h3>Form Peminjaman (Masuk Antrean)</h3>
+                <form id="queue-form">
+                    <input type="text" id="borrower-name" placeholder="Nama Mahasiswa" required>
+                    <select id="borrow-book-code" required>
+                        <option value="">Pilih Buku...</option>
+                    </select>
+                    <button type="submit">Masukkan ke Antrean</button>
+                </form>
+            </div>
+            
+            <div class="queue-board">
+                <div class="queue-status">
+                    <h3>Dalam Antrean: <span id="queue-count">0</span></h3>
+                    <h4>Selanjutnya (Posisi Pertama): <span id="queue-next">-</span></h4>
+                    <button onclick="processNextQueue()" class="btn-process">Proses Antrean Selanjutnya</button>
+                </div>
+                <table id="queue-table">
+                    <thead>
+                        <tr>
+                            <th>Posisi</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Buku Diminta</th>
+                            <th>Status Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PENGEMBALIAN BUKU -->
+        <section id="pengembalian">
+            <h2>Daftar Peminjaman Aktif</h2>
+            <table id="borrows-table">
+                <thead>
+                    <tr>
+                        <th>ID Transaksi</th>
+                        <th>Nama Mahasiswa</th>
+                        <th>Buku Dipinjam</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="borrows-table-body"></tbody>
+            </table>
+        </section>
+
+        
+    </div>
+    
+    <script src="js/storage.js"></script>
+    <script src="js/queue.js"></script>
+    <script src="js/algorithms.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
